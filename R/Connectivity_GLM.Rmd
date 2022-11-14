@@ -1,0 +1,200 @@
+---
+title: "Motion Analysis with GLM"
+author: "Wanwan Xu"
+date: '2022-10-26'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	include = TRUE
+)
+require("ggplot2")
+require("dplyr")
+require("reshape2")
+require("MASS")
+require("pscl")
+```
+
+## Setup
+
+Read in the data, rename columns, and specify which responses and predictors to use.
+
+```{r echo=TRUE}
+## for Ravlt data 
+dat <- read.csv("./data/connectivity_ravlt.csv")
+# modify columns if needed
+datRavlt <- data.frame("subj_id"= dat$src_subject_id)
+datRavlt$age <- dat$interview_age/12
+datRavlt$sex_F <- ifelse(dat$sex == "F",1,0)
+datRavlt$sexAge <- datRavlt$sex_F * datRavlt$age
+datRavlt$'RAVLT_Sum_of_Trials_1_5' = dat$ravlt_L
+datRavlt$'RAVLT_Immediate_Recall' = dat$trial6
+datRavlt$'Left_PCC_Left_AG_Connectivity' = dat$ROI28_Langulargyrus
+datRavlt$'Left_PCC_Left_PHG_Connectivity' = dat$ROI9_Lmesialtemporal
+# drop NA
+datRavlt <- datRavlt[complete.cases(datRavlt),]
+
+## for Neuroticism data
+dat <- read.csv("./data/connectivity_personality_emotion.csv")
+# modify columns if needed
+datNeuro <- data.frame("subj_id"= dat$src_subject_id)
+datNeuro$age <- dat$interview_age/12
+datNeuro$sex_F <- ifelse(dat$sex == "F",1,0)
+datNeuro$sexAge <- datNeuro$sex_F * datNeuro$age
+datNeuro$'Neuroticism' = dat$Neuroticism
+datNeuro$'Left_PCC_Right_STS_Connectivity' = dat$ROI17_Rsuperiortemporal
+datNeuro$'Left_PCC_Left_Insula_Connectivity' = dat$ROI7_Linsula
+# drop NA
+datNeuro <- datNeuro[complete.cases(datNeuro),]
+
+```
+
+**Note:**
+
+If we need to try other responses and predictors combination, we only need to modify the col_y and col_x and data frame part. For example:
+
+RAVLT-Learning (Sum of trials 1-5) GLM with age, gender, age\*gender, and the connectivity
+
+```{r eval=FALSE}
+dat4model <- datRavlt
+col_y <- c("RAVLT_Sum_of_Trials_1_5")
+col_x <- c("sex_F","age","sexAge",
+           "Left_PCC_Left_AG_Connectivity",
+           "Left_PCC_Left_PHG_Connectivity")
+```
+
+RAVLT-Immediate Recall with only age and the connectivity
+
+```{r eval=FALSE}
+dat4model <- datRavlt
+col_y <- c("RAVLT_Immediate_Recall")
+col_x <- c("age",
+           "Left_PCC_Left_AG_Connectivity",
+           "Left_PCC_Left_PHG_Connectivity")
+```
+
+Neurocism GLM with age, gender, age\*gender, and the connectivity
+
+```{r eval=FALSE}
+dat4model <- datNeuro
+col_y <- c("Neuroticism")
+col_x <- c("sex_F","age","sexAge",
+           "Left_PCC_Right_STS_Connectivity",
+           "Left_PCC_Right_STS_Connectivity")
+```
+
+## Regression
+
+Specify response and predictor columns:
+
+```{r}
+dat4model <- datRavlt
+col_y <- c("RAVLT_Sum_of_Trials_1_5")
+col_x <- c("sex_F","age","sexAge",
+           "Left_PCC_Left_AG_Connectivity")
+```
+
+Check the range/histogram of the response
+
+```{r}
+cat("The summary stats is: \n")
+
+summary(dat4model[,col_y])
+cat("The response variance is: ", var(dat4model[,col_y]))
+```
+
+So we have integer (count) data ranging from 0 to 74, consider Poisson, Negative Binomial, Quasi Poisson as following.
+
+### Poisson
+
+This is a good tutorial if you are not familiar with R or Poisson regression
+
+<https://stats.oarc.ucla.edu/r/dae/poisson-regression/>
+
+```{r}
+myFormula <- paste(col_y, paste(col_x, collapse=" + "), sep="~")
+myFormula <- as.formula(myFormula)
+summary(mPoisson <- glm(myFormula, 
+                        family=poisson, 
+                        data = dat4model))
+```
+
+### Negative Binomial Regression
+
+This tutorial is for Negative Binomial: <https://stats.oarc.ucla.edu/r/dae/negative-binomial-regression/>
+
+```{r}
+summary(mNB <- glm.nb(myFormula, 
+                      data = dat4model))
+```
+
+### Quasi-Poisson Regression
+
+```{r}
+myFormula <- paste(col_y, paste(col_x, collapse=" + "), sep="~")
+myFormula <- as.formula(myFormula)
+summary(mQPoisson <- glm(myFormula, 
+                        family=quasipoisson, 
+                        data = dat4model))
+```
+
+### Comparison
+
+```{r}
+dat4Plot <- data.frame("True" = dat4model[,col_y])
+dat4Plot$predPoi <- predict(mPoisson, newdata = dat4model, type = "response")
+dat4Plot$predQPoi <- predict(mQPoisson, newdata = dat4model, type = "response")
+dat4Plot$predNB <- predict(mNB, newdata = dat4model, type = "response")
+dat4Plot$id <- dat4model$subj_id
+#dat4Plot <- melt(dat4Plot,id.vars = id)
+dat4Plot[1:20,]
+```
+
+## Potential options for adjust age effect
+
+### Offset log(age)
+
+This is a nice explanation for offset variable :
+
+[https://myweb.uiowa.edu/pbreheny/uk/teaching/760-s13/notes/4-11.pdf](extension://efaidnbmnnnibpcajpcglclefindmkaj/https://myweb.uiowa.edu/pbreheny/uk/teaching/760-s13/notes/4-11.pdf)
+
+We can fix age as an offset. Meaning we force age stay in the model but with coefficient to be 1.
+
+```{r}
+col_y <- c("RAVLT_Sum_of_Trials_1_5")
+col_x <- c("sex_F",
+           "Left_PCC_Left_AG_Connectivity")
+myFormula2 <- paste(paste(col_y, paste(col_x, collapse=" + "), sep="~"), "+ offset(log(age))")
+myFormula2 <- as.formula(myFormula2)
+summary(mNB2 <- glm.nb(myFormula2,data = dat4model))
+```
+
+### Group age into decades
+
+Alternatively, we can bucket the age into groups to adjust the linear effect.
+
+```{r}
+# age group 36-39, 40-49, etc 
+dat4model$agegroup <- cut(dat4model$age,
+                        breaks=c(30,39,49,59,69,79,89,100),
+                        labels=c('36_39','40_49','50_59','60_69','70_79',
+                                '80_89','90_100'))
+col_y <- c("RAVLT_Sum_of_Trials_1_5")
+col_x <- c("sex_F","agegroup",
+           "Left_PCC_Left_AG_Connectivity")
+myFormula3 <- paste(paste(col_y, paste(col_x, collapse=" + "), sep="~"))
+myFormula3 <- as.formula(myFormula3)
+summary(mNB3 <- glm.nb(myFormula2,data = dat4model))
+
+```
+
+**Note for mediation analysis:**
+
+The mediation analysis may not be appropriate here.
+
+Below is an illustration figure for the mediation analysis. In our case, if independent variable is connectivity values, mediator variable is age, dependent variable is score, then we are suggesting connectivity value may influence age.
+
+![Illustration for mediation variables](https://upload.wikimedia.org/wikipedia/commons/f/f8/Simple_Mediation_Model.png){width="487"}

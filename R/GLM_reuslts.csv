@@ -1,0 +1,13 @@
+Response,sex,age,sex.Age,offset.age.,Connectivity_pvalue,Connectivity_sig,AIC,Formula
+RAVLT_Sum_of_Trials_1_5,1,1,1,0,0.6161,0,3794.74019220248,RAVLT_Sum_of_Trials_1_5 ~ sex_F + age + sexAge + Left_PCC_Left_AG_Connectivity
+RAVLT_Sum_of_Trials_1_5,0,1,0,0,0.0681,0,3810.54750462732,RAVLT_Sum_of_Trials_1_5 ~ age + Left_PCC_Left_AG_Connectivity
+RAVLT_Sum_of_Trials_1_5,1,1,1,0,0.6631,0,3794.80117358605,RAVLT_Sum_of_Trials_1_5 ~ sex_F + age + sexAge + Left_PCC_Left_PHG_Connectivity
+RAVLT_Sum_of_Trials_1_5,0,1,0,0,0.0561,0,3810.22854288813,RAVLT_Sum_of_Trials_1_5 ~ age + Left_PCC_Left_PHG_Connectivity
+Neuroticism,1,1,1,0,0.0244,1,3241.03805932726,Neuroticism ~ sex_F + age + sexAge + Left_PCC_Right_STS_Connectivity
+Neuroticism,0,1,0,0,0.0243,1,3250.03555585913,Neuroticism ~ age + Left_PCC_Right_STS_Connectivity
+Neuroticism,1,1,1,0,0.4039,0,3245.35680948673,Neuroticism ~ sex_F + age + sexAge + Left_PCC_Left_Insula_Connectivity
+Neuroticism,0,1,0,0,0.7485,0,3254.96960918473,Neuroticism ~ age + Left_PCC_Left_Insula_Connectivity
+RAVLT_Immediate_Recall,1,1,1,0,0.5572,0,2597.84532993921,RAVLT_Immediate_Recall ~ sex_F + age + sexAge + Left_PCC_Left_AG_Connectivity
+RAVLT_Immediate_Recall,0,1,0,0,0.1361,0,2602.40087675789,RAVLT_Immediate_Recall ~ age + Left_PCC_Left_AG_Connectivity
+RAVLT_Immediate_Recall,1,1,1,0,0.2816,0,2597.03401730316,RAVLT_Immediate_Recall ~ sex_F + age + sexAge + Left_PCC_Left_PHG_Connectivity
+RAVLT_Immediate_Recall,0,1,0,0,0.039,1,2600.38802160073,RAVLT_Immediate_Recall ~ age + Left_PCC_Left_PHG_Connectivity

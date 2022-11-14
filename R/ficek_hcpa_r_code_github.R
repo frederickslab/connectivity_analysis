@@ -39,8 +39,9 @@ hist(demographics$interview_age/12, xlab="Age (years)", ylab="Number of subjects
 
 #Normality tests
 connectivity_ravlt = read.csv("connectivity_ravlt.csv")
-hist(connectivity_ravlt$ravlt_total, xlab="RAVLT total", ylab="Number of subjects")
-shapiro.test(connectivity_ravlt$ravlt_total)
+hist(connectivity_ravlt$ravlt_total, xlab="RAVLT sum of 1-5", ylab="Number of subjects")
+shapiro.test(connectivity_ravlt$ravlt_L)
+#above is corrected RAVLT
 
 personality_emotion = read.csv("connectivity_personality_emotion.csv")
 hist(personality_emotion$Neuroticism, xlab="Neuroticism", ylab="Number of subjects")
@@ -57,7 +58,7 @@ shapiro.test(connectivity_moca$moca_total)
 connectivity_ravlt = read.csv("connectivity_ravlt.csv")
 
 #RAVLT x LPCC:LAngGyr
-ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI28_Langulargyrus",
+ggscatter(connectivity_ravlt, x = "ravlt_L", y = "ROI28_Langulargyrus",
           add = "reg.line", conf.int = TRUE, add.params = list(color="black"),
           cor.coef = TRUE, cor.method = "spearman", cor.coef.size = 5,
           xlab = "RAVLT Sum of Trials 1-5", ylab = "Left PCC:Left AG Connectivity", 
@@ -66,7 +67,7 @@ ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI28_Langulargyrus",
   ggtitle("RAVLT vs. Left PCC:Left AG Connectivity") + font("title", size=20) + theme(plot.title = element_text(hjust = 0.5))
 
 #RAVLT x LPCC:RAngGyr
-ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI27_Rangulargyrus",
+ggscatter(connectivity_ravlt, x = "ravlt_L", y = "ROI27_Rangulargyrus",
           add = "reg.line", conf.int = TRUE, add.params = list(color="black"),
           cor.coef = TRUE, cor.method = "spearman", cor.coef.size = 5,
           xlab = "RAVLT Sum of Trials 1-5", ylab = "Left PCC:Right AG Connectivity",
@@ -75,7 +76,7 @@ ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI27_Rangulargyrus",
   ggtitle("RAVLT vs. Left PCC:Right AG Connectivity") + font("title", size=20) + theme(plot.title = element_text(hjust = 0.5))
 
 #RAVLT x LPCC:Lmesialtemporal
-ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI9_Lmesialtemporal",
+ggscatter(connectivity_ravlt, x = "ravlt_L", y = "ROI9_Lmesialtemporal",
           add = "reg.line", conf.int = TRUE, add.params = list(color="black"),
           cor.coef = TRUE, cor.method = "spearman", cor.coef.size = 5,
           xlab = "RAVLT Sum of Trials 1-5", ylab = "Left PCC:Left PHG Connectivity", 
@@ -84,7 +85,7 @@ ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI9_Lmesialtemporal",
   ggtitle("RAVLT vs. Left PCC:Left PHG Connectivity") + font("title", size=20) + theme(plot.title = element_text(hjust = 0.5))
 
 #RAVLT x LPCC:Rmesialtemporal
-ggscatter(connectivity_ravlt, x = "ravlt_total", y = "ROI8_Rmesialtemporal",
+ggscatter(connectivity_ravlt, x = "ravlt_L", y = "ROI8_Rmesialtemporal",
           add = "reg.line", conf.int = TRUE, add.params = list(color="black"),
           cor.coef = TRUE, cor.method = "spearman", cor.coef.size = 5,
           xlab = "RAVLT Sum of Trials 1-5", ylab = "Left PCC:Right PHG Connectivity",
